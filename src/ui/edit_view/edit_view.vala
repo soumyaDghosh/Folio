@@ -67,9 +67,29 @@ public class Folio.EditView : Gtk.Box {
 
 		click_controller.pressed.connect ((n, x, y) => {
 			if (is_ctrl) {
-				try {
-					GLib.AppInfo.launch_default_for_uri ("http://duckduckgo.com", null);
-				} catch (Error e) {}
+				var ins = markdown_view.buffer.get_insert ();
+				Gtk.TextIter cur;
+				markdown_view.buffer.get_iter_at_mark (out cur, ins);
+				var text_tag_url = markdown_view.buffer.tag_table.lookup ("markdown-link");
+
+				if (cur.has_tag (text_tag_url)) {
+					Gtk.TextIter start_url, end_url;
+					start_url = cur;
+					end_url = cur;
+					start_url.backward_to_tag_toggle (text_tag_url);
+					end_url.forward_to_tag_toggle (text_tag_url);
+
+					var url_text = markdown_view.buffer.get_slice (start_url, end_url, true);
+					url_text = url_text.chomp ().chug ();
+					if (!url_text.contains ("://"))
+						url_text = "http://" + url_text;
+
+					stdout.printf ("link: %s\n", url_text);
+
+					try {
+						GLib.AppInfo.launch_default_for_uri (url_text, null);
+					} catch (Error e) {}
+				}
 			}
 		});
 
