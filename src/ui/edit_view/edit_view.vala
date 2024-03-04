@@ -65,7 +65,7 @@ public class Folio.EditView : Gtk.Box {
             button = Gdk.BUTTON_PRIMARY
         };
 
-		click_controller.pressed.connect ((n, x, y) => {
+		click_controller.released.connect ((n, x, y) => {
 			if (is_ctrl) {
 				var ins = markdown_view.buffer.get_insert ();
 				Gtk.TextIter cur;
