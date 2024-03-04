@@ -37,6 +37,8 @@ public class Folio.EditView : Gtk.Box {
     private Gtk.CssProvider note_font_provider = new Gtk.CssProvider ();
     private Gtk.CssProvider font_scale_provider = new Gtk.CssProvider ();
 
+	private bool is_ctrl = false;
+
     construct {
 	    var settings = new Settings (Config.APP_ID);
 
@@ -58,6 +60,21 @@ public class Folio.EditView : Gtk.Box {
             markdown_view.set_title_level (cur.get_line (), i);
         });
 
+		Gtk.GestureClick click_controller;
+		click_controller = new Gtk.GestureClick () {
+            button = Gdk.BUTTON_PRIMARY
+        };
+
+		click_controller.pressed.connect ((n, x, y) => {
+			if (is_ctrl) {
+				try {
+					GLib.AppInfo.launch_default_for_uri ("http://duckduckgo.com", null);
+				} catch (Error e) {}
+			}
+		});
+
+		markdown_view.add_controller (click_controller);
+
         scrolled_window.get_vscrollbar ().margin_top = 48;
 
 	    settings.bind ("toolbar-enabled", this, "toolbar-enabled", SettingsBindFlags.DEFAULT);
@@ -78,7 +95,6 @@ public class Folio.EditView : Gtk.Box {
 	    notify["scale"].connect(set_font_scale);
 
 	    var key_controller = new Gtk.EventControllerKey ();
-	    var is_ctrl = false;
 	    key_controller.key_pressed.connect ((keyval, keycode, state) => {
 	        if (keyval == Gdk.Key.Control_L || keyval == Gdk.Key.Control_R)
 	            is_ctrl = true;
